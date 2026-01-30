@@ -1,55 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
-interface UsageRecord {
-  id: string;
-  district: string;
-  sub_district: string;
-  medicine_name: string;
-  date: string;
-  quantity_used: number;
-  isSpike: boolean;
-  percentAboveBaseline: number;
-}
-
-interface Stats {
-  totalUsage: number;
-  averageUsage: number;
-  baselineAverage: number;
-  spikeThreshold: number;
-  minUsage: number;
-  maxUsage: number;
-  dataPoints: number;
-}
-
-interface CurrentAlert {
-  isSpike: boolean;
-  severity: "warning" | "critical";
-  message: string;
-  affectedDays: number;
-  percentageIncrease: number;
-}
-
-interface Alert {
-  district: string;
-  subDistrict: string;
-  medicine: string;
-  percentageIncrease: number;
-  severity: "warning" | "critical";
-  message: string;
-  peakUsage: number;
-  baselineAvg: number;
-  detectedAt: string;
-}
-
-interface FilterOptions {
-  districts: string[];
-  medicines: string[];
-  districtSubDistricts: Record<string, string[]>;
-}
+import type { UsageRecord, Stats, CurrentAlert, Alert, FilterOptions } from "@/types/medicine";
 
 /**
  * Custom hook to manage medicine usage data and alerts
+ * Handles filter state, data fetching, and error management
  */
 export function useMedicineData() {
   // Filter state
@@ -177,14 +132,14 @@ export function useMedicineData() {
   }, [fetchUsageData]);
 
   // Reset sub-district when district changes
-  const handleDistrictChange = (district: string) => {
+  const handleDistrictChange = useCallback((district: string) => {
     setSelectedDistrict(district);
     setSelectedSubDistrict("");
     // Auto-select first sub-district
     if (filterOptions.districtSubDistricts[district]?.length > 0) {
       setSelectedSubDistrict(filterOptions.districtSubDistricts[district][0]);
     }
-  };
+  }, [filterOptions.districtSubDistricts]);
 
   return {
     // Filters
