@@ -1,4 +1,4 @@
-import { Activity, Shield, RefreshCw } from "lucide-react";
+import { Activity, RefreshCw, Radio, Shield, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DashboardHeaderProps {
@@ -7,74 +7,88 @@ interface DashboardHeaderProps {
 }
 
 /**
- * Dashboard header component with branding and actions
+ * Sentinel Command Center Header
  */
 export function DashboardHeader({ onRefresh, isLoading }: DashboardHeaderProps) {
   return (
-    <header className="dashboard-header relative overflow-hidden">
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-          backgroundSize: '24px 24px'
-        }} />
-      </div>
-      
-      <div className="container mx-auto px-6 py-6 relative">
+    <header className="sentinel-header">
+      <div className="container mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
+          {/* Logo & Title */}
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 shadow-lg">
-                <Activity className="w-8 h-8 text-white" />
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20">
+                <Activity className="w-6 h-6 text-primary" />
               </div>
-              {/* Pulse indicator */}
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-white animate-pulse" />
+              {/* Live indicator */}
+              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-success status-dot-pulse" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white font-display tracking-tight">
-                MedScope
+              <h1 className="text-xl font-semibold text-foreground tracking-tight flex items-center gap-2">
+                <span className="text-gradient-primary">MedScope</span>
+                <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                  SENTINEL
+                </span>
               </h1>
-              <p className="text-sm text-white/80 font-medium">
-                Medicine Usage Surveillance & Alert System
+              <p className="text-xs text-muted-foreground">
+                Real-time Health Surveillance Command Center
               </p>
             </div>
           </div>
-          
-          <div className="flex items-center gap-4">
-            {/* Status Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success" />
-              </span>
-              <span className="text-sm text-white/95 font-medium">
-                Live Monitoring
-              </span>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
+            {/* Status Indicators - Desktop */}
+            <div className="hidden lg:flex items-center gap-4 mr-4">
+              <StatusBadge icon={Radio} label="Live Feed" status="active" />
+              <StatusBadge icon={Shield} label="Monitoring" status="active" />
             </div>
 
             {/* Refresh Button */}
             {onRefresh && (
               <Button
-                variant="ghost"
-                size="icon"
+                variant="outline"
+                size="sm"
                 onClick={onRefresh}
                 disabled={isLoading}
-                className="text-white/80 hover:text-white hover:bg-white/15 border border-white/20"
+                className="gap-2 bg-muted/50 border-border hover:bg-muted hover:border-primary/50"
               >
-                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
               </Button>
             )}
 
-            {/* Shield Badge */}
-            <div className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
-              <Shield className="w-4 h-4 text-white/80" />
-              <span className="text-sm text-white/95 font-medium">
-                Real-time Protection
-              </span>
+            {/* System Status */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-success/10 border border-success/30">
+              <Zap className="w-3.5 h-3.5 text-success" />
+              <span className="text-xs font-medium text-success">System Online</span>
             </div>
           </div>
         </div>
       </div>
     </header>
+  );
+}
+
+function StatusBadge({ 
+  icon: Icon, 
+  label, 
+  status 
+}: { 
+  icon: typeof Radio; 
+  label: string; 
+  status: 'active' | 'warning' | 'error';
+}) {
+  const colors = {
+    active: 'text-success bg-success/10 border-success/30',
+    warning: 'text-warning bg-warning/10 border-warning/30',
+    error: 'text-destructive bg-destructive/10 border-destructive/30',
+  };
+
+  return (
+    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${colors[status]}`}>
+      <Icon className="w-3.5 h-3.5" />
+      <span className="text-xs font-medium">{label}</span>
+    </div>
   );
 }

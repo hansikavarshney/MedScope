@@ -5,12 +5,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Bug, MapPin, Pill, TrendingUp, ShieldAlert, X } from "lucide-react";
+import { AlertTriangle, Bug, MapPin, Pill, TrendingUp, ShieldAlert, X, Radio } from "lucide-react";
 import { CurrentAlert, detectDiseaseFromMedicine, DiseasePattern } from "@/types/medicine";
-import { Badge } from "@/components/ui/badge";
 
 interface DiseaseAlertModalProps {
   currentAlert: CurrentAlert | null;
@@ -20,7 +18,7 @@ interface DiseaseAlertModalProps {
 }
 
 /**
- * Disease detection modal that triggers when a spike indicates potential disease outbreak
+ * Disease Detection Alert Modal - Command Center Style
  */
 export function DiseaseAlertModal({
   currentAlert,
@@ -32,18 +30,15 @@ export function DiseaseAlertModal({
   const [diseasePattern, setDiseasePattern] = useState<DiseasePattern | null>(null);
   const [hasShownForSelection, setHasShownForSelection] = useState(false);
 
-  // Reset when selection changes
   useEffect(() => {
     setHasShownForSelection(false);
   }, [selectedMedicine, selectedDistrict, selectedSubDistrict]);
 
-  // Trigger modal when spike is detected
   useEffect(() => {
     if (currentAlert?.isSpike && selectedMedicine && !hasShownForSelection) {
       const pattern = detectDiseaseFromMedicine(selectedMedicine);
       if (pattern) {
         setDiseasePattern(pattern);
-        // Small delay for better UX
         const timer = setTimeout(() => {
           setIsOpen(true);
           setHasShownForSelection(true);
@@ -63,27 +58,27 @@ export function DiseaseAlertModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden bg-card">
-        {/* Alert Header Banner */}
-        <div
-          className={`px-6 py-5 ${
-            isCritical
-              ? "bg-gradient-to-r from-destructive to-destructive/80"
-              : "bg-gradient-to-r from-warning to-warning/80"
-          }`}
-        >
-          <div className="flex items-start gap-4">
-            <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
-              <ShieldAlert className="w-8 h-8 text-white" />
-            </div>
-            <div className="flex-1">
-              <DialogHeader className="space-y-1">
-                <DialogTitle className="text-xl font-display font-bold text-white flex items-center gap-2">
-                  <Bug className="w-5 h-5" />
-                  Disease Alert Detected
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-card border-border gap-0">
+        {/* Header */}
+        <div className={`px-5 py-4 border-b border-border ${isCritical ? 'bg-destructive/10' : 'bg-warning/10'}`}>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`p-2.5 rounded-lg ${isCritical ? 'bg-destructive/20' : 'bg-warning/20'}`}>
+                <ShieldAlert className={`w-6 h-6 ${isCritical ? 'text-destructive' : 'text-warning'}`} />
+              </div>
+              <DialogHeader className="text-left space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Radio className={`w-3 h-3 ${isCritical ? 'text-destructive' : 'text-warning'} animate-pulse`} />
+                  <span className={`text-xs font-semibold uppercase tracking-wider ${isCritical ? 'text-destructive' : 'text-warning'}`}>
+                    Alert Detected
+                  </span>
+                </div>
+                <DialogTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <Bug className="w-4 h-4" />
+                  Potential Outbreak
                 </DialogTitle>
-                <DialogDescription className="text-white/90 text-sm">
-                  Potential outbreak identified in your region
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Health risk identified in monitored region
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -91,104 +86,119 @@ export function DiseaseAlertModal({
               variant="ghost"
               size="icon"
               onClick={handleClose}
-              className="text-white/80 hover:text-white hover:bg-white/20 -mt-1 -mr-2"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-5">
-          {/* Location & Medicine Info */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-muted/50 border border-border">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <MapPin className="w-4 h-4" />
-                <span className="text-xs font-medium uppercase tracking-wide">Location</span>
-              </div>
-              <p className="font-semibold text-foreground">
-                {selectedSubDistrict || selectedDistrict}
-              </p>
-              <p className="text-sm text-muted-foreground">{selectedDistrict}</p>
-            </div>
-            <div className="p-4 rounded-xl bg-muted/50 border border-border">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <Pill className="w-4 h-4" />
-                <span className="text-xs font-medium uppercase tracking-wide">Medicine</span>
-              </div>
-              <p className="font-semibold text-foreground">{selectedMedicine}</p>
-              <div className="flex items-center gap-1 mt-1">
-                <TrendingUp className={`w-3 h-3 ${isCritical ? "text-destructive" : "text-warning"}`} />
-                <span className={`text-sm font-medium ${isCritical ? "text-destructive" : "text-warning"}`}>
-                  +{currentAlert.percentageIncrease.toFixed(0)}% above baseline
+        <div className="p-5 space-y-4">
+          {/* Location & Medicine Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <InfoBox
+              icon={MapPin}
+              label="Location"
+              value={selectedSubDistrict || selectedDistrict}
+              subValue={selectedSubDistrict ? selectedDistrict : undefined}
+            />
+            <InfoBox
+              icon={Pill}
+              label="Medicine"
+              value={selectedMedicine}
+              badge={
+                <span className={`flex items-center gap-1 text-xs font-mono ${isCritical ? 'text-destructive' : 'text-warning'}`}>
+                  <TrendingUp className="w-3 h-3" />
+                  +{currentAlert.percentageIncrease.toFixed(0)}%
                 </span>
-              </div>
-            </div>
+              }
+            />
           </div>
 
-          {/* Potential Diseases */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground flex items-center gap-2">
-              <AlertTriangle className={`w-4 h-4 ${isCritical ? "text-destructive" : "text-warning"}`} />
+          {/* Conditions */}
+          <div className="space-y-2">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <AlertTriangle className={`w-3 h-3 ${isCritical ? 'text-destructive' : 'text-warning'}`} />
               Potential Conditions
-            </h4>
+            </span>
             <div className="flex flex-wrap gap-2">
               {diseasePattern.diseases.map((disease) => (
-                <Badge
+                <span
                   key={disease}
-                  variant="secondary"
-                  className={`px-3 py-1.5 text-sm font-medium ${
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg border ${
                     isCritical
-                      ? "bg-destructive/10 text-destructive border-destructive/20"
-                      : "bg-warning/10 text-warning border-warning/20"
+                      ? "bg-destructive/10 text-destructive border-destructive/30"
+                      : "bg-warning/10 text-warning border-warning/30"
                   }`}
                 >
                   {disease}
-                </Badge>
+                </span>
               ))}
             </div>
           </div>
 
           {/* Description */}
-          <div className="p-4 rounded-xl bg-accent/5 border border-accent/20">
-            <p className="text-sm text-foreground leading-relaxed">
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+            <p className="text-sm text-foreground/80 leading-relaxed">
               {diseasePattern.description}
             </p>
           </div>
 
-          {/* Alert Details */}
-          <div className="text-sm text-muted-foreground">
-            <p>
-              <span className="font-medium text-foreground">Affected period:</span>{" "}
-              {currentAlert.affectedDays} days showing elevated usage
-            </p>
-          </div>
+          {/* Duration */}
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">Duration:</span>{" "}
+            {currentAlert.affectedDays} days of elevated usage detected
+          </p>
         </div>
 
         {/* Footer */}
-        <DialogFooter className="px-6 py-4 bg-muted/30 border-t border-border">
-          <div className="flex w-full gap-3">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              className="flex-1"
-            >
-              Dismiss
-            </Button>
-            <Button
-              onClick={handleClose}
-              className={`flex-1 ${
-                isCritical
-                  ? "bg-destructive hover:bg-destructive/90"
-                  : "bg-warning hover:bg-warning/90 text-warning-foreground"
-              }`}
-            >
-              Acknowledge Alert
-            </Button>
-          </div>
-        </DialogFooter>
+        <div className="px-5 py-4 border-t border-border bg-muted/30 flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            className="flex-1"
+          >
+            Dismiss
+          </Button>
+          <Button
+            onClick={handleClose}
+            className={`flex-1 ${
+              isCritical
+                ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                : "bg-warning hover:bg-warning/90 text-warning-foreground"
+            }`}
+          >
+            Acknowledge
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function InfoBox({
+  icon: Icon,
+  label,
+  value,
+  subValue,
+  badge,
+}: {
+  icon: typeof MapPin;
+  label: string;
+  value: string;
+  subValue?: string;
+  badge?: React.ReactNode;
+}) {
+  return (
+    <div className="p-3 rounded-lg bg-muted/30 border border-border">
+      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+        <Icon className="w-3 h-3" />
+        <span className="text-xs font-medium uppercase tracking-wider">{label}</span>
+      </div>
+      <p className="text-sm font-medium text-foreground truncate">{value}</p>
+      {subValue && <p className="text-xs text-muted-foreground">{subValue}</p>}
+      {badge && <div className="mt-1">{badge}</div>}
+    </div>
   );
 }

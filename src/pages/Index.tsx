@@ -5,11 +5,10 @@ import { UsageChart } from "@/components/dashboard/UsageChart";
 import { AlertPanel } from "@/components/dashboard/AlertPanel";
 import { DiseaseAlertModal } from "@/components/dashboard/DiseaseAlertModal";
 import { useMedicineData } from "@/hooks/useMedicineData";
-import { Loader2, Activity } from "lucide-react";
+import { Loader2, Activity, Radio } from "lucide-react";
 
 /**
- * Main dashboard page for MedScope medicine usage monitoring
- * Features: Filters, Stats, Usage Chart, Alerts, and Disease Detection Modal
+ * MedScope Sentinel - Command Center Dashboard
  */
 const Index = () => {
   const {
@@ -32,24 +31,21 @@ const Index = () => {
     refresh,
   } = useMedicineData();
 
-  // Show loading state while filters are loading
   if (filtersLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background sentinel-grid-bg">
         <DashboardHeader />
-        <div className="flex items-center justify-center min-h-[70vh]">
+        <div className="flex items-center justify-center min-h-[80vh]">
           <div className="text-center">
-            <div className="relative inline-block mb-6">
-              <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Activity className="w-10 h-10 text-primary" />
-              </div>
-              <Loader2 className="w-8 h-8 animate-spin text-primary absolute -bottom-2 -right-2 bg-background rounded-full p-1" />
+            <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 mb-6">
+              <Activity className="w-10 h-10 text-primary" />
+              <Loader2 className="w-6 h-6 animate-spin text-primary absolute -bottom-2 -right-2 bg-background rounded-full border border-border p-0.5" />
             </div>
-            <h2 className="text-xl font-display font-bold text-foreground mb-2">
-              Loading MedScope
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Initializing Sentinel
             </h2>
-            <p className="text-muted-foreground">
-              Initializing surveillance dashboard...
+            <p className="text-sm text-muted-foreground">
+              Loading surveillance systems...
             </p>
           </div>
         </div>
@@ -58,13 +54,13 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header with refresh action */}
+    <div className="min-h-screen bg-background sentinel-grid-bg">
+      {/* Header */}
       <DashboardHeader onRefresh={refresh} isLoading={usageLoading} />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Filter Panel */}
+      <main className="container mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* Filters */}
         <FilterPanel
           districts={filterOptions.districts}
           medicines={filterOptions.medicines}
@@ -80,7 +76,7 @@ const Index = () => {
           isLoading={usageLoading}
         />
 
-        {/* Stats Cards */}
+        {/* Stats Row */}
         <StatsCards
           stats={stats}
           hasSpike={currentAlert?.isSpike || false}
@@ -89,7 +85,7 @@ const Index = () => {
 
         {/* Main Grid: Chart + Alerts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Usage Chart - Takes 2 columns */}
+          {/* Chart Panel */}
           <div className="lg:col-span-2">
             <UsageChart
               data={usageData}
@@ -99,7 +95,7 @@ const Index = () => {
             />
           </div>
 
-          {/* Alerts Panel - Takes 1 column */}
+          {/* Alert Panel */}
           <div className="lg:col-span-1">
             <AlertPanel
               currentAlert={currentAlert}
@@ -110,19 +106,22 @@ const Index = () => {
         </div>
 
         {/* Footer */}
-        <footer className="text-center text-sm text-muted-foreground pt-8 pb-4 border-t border-border">
-          <p className="flex items-center justify-center gap-2">
-            <Activity className="w-4 h-4 text-primary" />
-            <span>
-              MedScope — Medicine Usage Surveillance System • 
-              Data refreshes on demand • 
-              Spike detection threshold: ≥30% above baseline
-            </span>
-          </p>
+        <footer className="pt-6 pb-4 border-t border-border">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Radio className="w-3.5 h-3.5 text-primary" />
+              <span>MedScope Sentinel — Real-time Health Surveillance</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span>Spike Threshold: ≥30%</span>
+              <span className="text-muted-foreground/50">|</span>
+              <span className="font-mono">v1.0.0</span>
+            </div>
+          </div>
         </footer>
       </main>
 
-      {/* Disease Detection Modal */}
+      {/* Disease Modal */}
       <DiseaseAlertModal
         currentAlert={currentAlert}
         selectedMedicine={selectedMedicine}
